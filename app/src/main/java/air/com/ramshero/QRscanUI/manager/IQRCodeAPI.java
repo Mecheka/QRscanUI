@@ -1,6 +1,7 @@
 package air.com.ramshero.QRscanUI.manager;
 
 import air.com.ramshero.QRscanUI.model.login.LoginResultModel;
+import air.com.ramshero.QRscanUI.model.menu.MenuResultModel;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -13,4 +14,7 @@ public interface IQRCodeAPI {
     Call<LoginResultModel> loginRequest(@Field("user") String user,
                                         @Field("pass") String pass);
 
+    @FormUrlEncoded
+    @POST("load_user_menu.php?token=devman&version=1")
+    Call<MenuResultModel> getMenuResult(@Field("u_id") String u_id);
 }

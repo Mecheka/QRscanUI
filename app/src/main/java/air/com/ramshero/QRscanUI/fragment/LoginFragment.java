@@ -86,6 +86,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                                 Intent intent = new Intent(getActivity(), MainActivity.class);
                                 intent.putExtra("user", Parcels.wrap(loginResult.getUser()));
                                 startActivity(intent);
+                                getActivity().finish();
                             }
                         }else {
                             try {
