@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,14 +17,16 @@ import com.bumptech.glide.request.RequestOptions;
 import org.parceler.Parcels;
 
 import air.com.ramshero.QRscanUI.R;
+import air.com.ramshero.QRscanUI.fragment.IClickFragment;
 import air.com.ramshero.QRscanUI.fragment.MainFragment;
 import air.com.ramshero.QRscanUI.model.login.User;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, IClickFragment{
 
     private ImageView imgBgUser;
     private TextView textUser;
     private ImageView btnLogout;
+    private ImageView btnBack;
 
     private User user;
 
@@ -52,8 +55,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgBgUser = findViewById(R.id.imgBguser);
         textUser = findViewById(R.id.textUser);
         btnLogout = findViewById(R.id.btnLogout);
+        btnBack = findViewById(R.id.btnBack);
 
         btnLogout.setOnClickListener(this);
+        btnBack.setOnClickListener(this);
 
         displayImage();
     }
@@ -82,6 +87,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 finish();
                 break;
+            case R.id.btnBack:
+                onBackPressed();
+                break;
+        }
+    }
+
+    @Override
+    public void onClickFragment(Boolean clicked) {
+        if (clicked){
+            Log.d("Fragment Click", "Click");
+            btnBack.setVisibility(View.VISIBLE);
+        }else {
+            Log.d("Fragment Click", "Click back");
+            btnBack.setVisibility(View.GONE);
         }
     }
 }

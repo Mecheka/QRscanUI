@@ -1,6 +1,7 @@
 package air.com.ramshero.QRscanUI.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,8 @@ public class WebFragment extends Fragment {
 
     private String url;
 
+    private IClickFragment mCallback;
+
     public WebFragment() {
         // Required empty public constructor
     }
@@ -32,6 +35,16 @@ public class WebFragment extends Fragment {
         args.putString("url", url);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (IClickFragment) context;
+        }catch (ClassCastException e){
+            throw new ClassCastException(context.toString() + "must implement IClickFragment");
+        }
     }
 
     @Override
@@ -47,6 +60,12 @@ public class WebFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_web, container, false);
         initInstance(rootView);
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mCallback.onClickFragment(false);
     }
 
     private void initInstance(View rootView) {

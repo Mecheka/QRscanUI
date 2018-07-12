@@ -1,5 +1,7 @@
 package air.com.ramshero.QRscanUI.fragment;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.parceler.Parcels;
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import air.com.ramshero.QRscanUI.R;
+import air.com.ramshero.QRscanUI.activity.ScanQrActivity;
 import air.com.ramshero.QRscanUI.manager.Common;
 import air.com.ramshero.QRscanUI.manager.IQRCodeAPI;
 import air.com.ramshero.QRscanUI.model.login.User;
@@ -25,8 +29,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainFragment extends Fragment implements View.OnClickListener{
+public class MainFragment extends Fragment implements View.OnClickListener {
 
+    private static final int REQUES_SCANQR = 178;
+
+    private ImageView btnScanQr;
     private Button btnHome;
     private Button btnQrList;
 
@@ -34,16 +41,29 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     private ArrayList<MenuModel> menuList = new ArrayList<>();
     private IQRCodeAPI mService;
 
+    private IClickFragment mCallback;
+    private Boolean clickked = false;
+
     public MainFragment() {
         // Required empty public constructor
     }
 
-    public static MainFragment newInstance(User user){
+    public static MainFragment newInstance(User user) {
         MainFragment fragment = new MainFragment();
         Bundle args = new Bundle();
         args.putParcelable("user", Parcels.wrap(user));
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (IClickFragment) context;
+        }catch (ClassCastException e){
+            throw new ClassCastException(context.toString() + "must implement IClickFragment");
+        }
     }
 
     @Override
@@ -63,6 +83,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        clickked = false;
+    }
+
     private void initData() {
 
         mService = Common.getAPI();
@@ -71,13 +97,13 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 .enqueue(new Callback<MenuResultModel>() {
                     @Override
                     public void onResponse(Call<MenuResultModel> call, Response<MenuResultModel> response) {
-                        if (response.isSuccessful()){
+                        if (response.isSuccessful()) {
                             MenuResultModel menuResultModel = response.body();
                             menuList.clear();
-                            for (MenuModel menuModel : menuResultModel.getMenu()){
+                            for (MenuModel menuModel : menuResultModel.getMenu()) {
                                 menuList.add(menuModel);
                             }
-                        }else {
+                        } else {
                             try {
                                 Toast.makeText(getActivity(), response.errorBody().string(), Toast.LENGTH_SHORT).show();
                             } catch (IOException e) {
@@ -97,18 +123,43 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private void initInstance(View rootView) {
 
+        btnScanQr = rootView.findViewById(R.id.btnScanQr);
         btnHome = rootView.findViewById(R.id.btnHome);
         btnQrList = rootView.findViewById(R.id.btnQrList);
 
+        btnScanQr.setOnClickListener(this);
         btnHome.setOnClickListener(this);
         btnQrList.setOnClickListener(this);
 
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUES_SCANQR:
+                if (resultCode == getActivity().RESULT_OK) {
+                    if (data != null) {
+                        String url = data.getStringExtra("urlResult");
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.contentContainer, WebFragment.newInstance(url))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                }
+        }
+    }
+
+    @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
+            case R.id.btnScanQr:
+                Intent intent = new Intent(getActivity(), ScanQrActivity.class);
+                startActivityForResult(intent, REQUES_SCANQR);
+                break;
             case R.id.btnHome:
+                clickked = true;
+                mCallback.onClickFragment(clickked);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "home")))
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -116,6 +167,8 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                         .commit();
                 break;
             case R.id.btnQrList:
+                clickked = true;
+                mCallback.onClickFragment(clickked);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "qr list")))
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -127,8 +180,8 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
     private String getUrlMenu(ArrayList<MenuModel> menuList, String validate) {
         String url = null;
-        for (MenuModel menuModel : menuList){
-            if (menuModel.getName().equals(validate)){
+        for (MenuModel menuModel : menuList) {
+            if (menuModel.getName().equals(validate)) {
                 url = menuModel.getUrl();
             }
         }
