@@ -9,12 +9,27 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                def date = new Date()
+                def formattedDate = date.format('yyyyMMdd')
+                def fileName = "QRscanUI" + formattedDate + ".apk"
+                outputFileName = new File(fileName)
+            }
+        }
+    }
+    dexOptions {
+        javaMaxHeapSize = "4g"
     }
 }
 
@@ -38,5 +53,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services:11.8.0'
     implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+    implementation 'com.android.support:multidex:1.0.3'
 
 }
