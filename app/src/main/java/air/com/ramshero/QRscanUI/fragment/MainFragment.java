@@ -32,8 +32,6 @@ import retrofit2.Response;
 
 public class MainFragment extends Fragment implements View.OnClickListener {
 
-    private static final int REQUES_SCANQR = 178;
-
     private ImageView btnScanQr;
     private Button btnHome;
     private Button btnQrList;
@@ -43,8 +41,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private IQRCodeAPI mService;
 
     private IClickFragment mCallback;
-    private Boolean clickked = false;
-    private Boolean webCallback = false;
+    private int clickked = 0;
 
     public MainFragment() {
         // Required empty public constructor
@@ -88,7 +85,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        clickked = false;
+        clickked = 0;
     }
 
     private void initData() {
@@ -136,33 +133,15 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUES_SCANQR:
-                if (resultCode == getActivity().RESULT_OK) {
-                    if (data != null) {
-                        clickked = true;
-                        mCallback.onClickFragment(clickked);
-                        String url = data.getStringExtra("urlResult");
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.contentContainer, WebFragment.newInstance(url))
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }
-        }
-    }
-
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnScanQr:
                 Intent intent = new Intent(getActivity(), ScanQrActivity.class);
-                startActivityForResult(intent, REQUES_SCANQR);
+                intent.putExtra("user", Parcels.wrap(user));
+                startActivity(intent);
                 break;
             case R.id.btnHome:
-                clickked = true;
+                clickked = 1;
                 mCallback.onClickFragment(clickked);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "home")))
@@ -171,7 +150,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                         .commit();
                 break;
             case R.id.btnQrList:
-                clickked = true;
+                clickked = 1;
                 mCallback.onClickFragment(clickked);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "qr list")))

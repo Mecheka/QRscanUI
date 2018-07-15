@@ -3,7 +3,7 @@
     package="air.com.ramshero.QRscanUI">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name="android.support.multidex.MultiDexApplication"
@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.LoginActivity"
+        <activity
+            android:name=".activity.LoginActivity"
             android:theme="@style/MyTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,10 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity"
+        <activity
+            android:name=".activity.MainActivity"
+            android:theme="@style/MyTheme" />
+        <activity
+            android:name=".activity.ScanQrActivity"
+            android:theme="@style/MyTheme" />
+        <activity android:name=".activity.WebResultScanActivity"
             android:theme="@style/MyTheme"/>
-        <activity android:name=".activity.ScanQrActivity"
-            android:theme="@style/MyTheme"></activity>
     </application>
 
 </manifest>

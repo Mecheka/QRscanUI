@@ -20,9 +20,12 @@ import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import org.parceler.Parcels;
+
 import java.io.IOException;
 
 import air.com.ramshero.QRscanUI.R;
+import air.com.ramshero.QRscanUI.model.login.User;
 import air.com.ramshero.QRscanUI.view.IClickFragment;
 
 public class ScanQrActivity extends AppCompatActivity implements View.OnClickListener {
@@ -33,14 +36,20 @@ public class ScanQrActivity extends AppCompatActivity implements View.OnClickLis
     private BarcodeDetector barcode;
     private CameraSource cameraSource;
     private SurfaceHolder holder;
-    private IClickFragment mCallback;
+
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_qr);
 
+        initData();
         initInstance();
+    }
+
+    private void initData() {
+        user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
     }
 
     private void initInstance() {
@@ -105,11 +114,11 @@ public class ScanQrActivity extends AppCompatActivity implements View.OnClickLis
                         @Override
                         public void run() {
 
-                            Intent intent = new Intent();
+                            Intent intent = new Intent(ScanQrActivity.this, WebResultScanActivity.class);
                             intent.putExtra("urlResult", barcodeArray.valueAt(0).displayValue);
-                            intent.putExtra("clicked", true);
-                            setResult(RESULT_OK, intent);
+                            intent.putExtra("user", Parcels.wrap(user));
                             cameraSource.stop();
+                            startActivity(intent);
                             finish();
                         }
                     });

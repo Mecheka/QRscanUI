@@ -66,7 +66,7 @@ public class WebFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mCallback.onClickFragment(false);
+        mCallback.onClickFragment(0);
     }
 
     private void initInstance(View rootView) {
