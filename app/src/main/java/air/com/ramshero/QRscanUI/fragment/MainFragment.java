@@ -25,6 +25,7 @@ import air.com.ramshero.QRscanUI.manager.IQRCodeAPI;
 import air.com.ramshero.QRscanUI.model.login.User;
 import air.com.ramshero.QRscanUI.model.menu.MenuModel;
 import air.com.ramshero.QRscanUI.model.menu.MenuResultModel;
+import air.com.ramshero.QRscanUI.view.IClickFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,6 +44,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     private IClickFragment mCallback;
     private Boolean clickked = false;
+    private Boolean webCallback = false;
 
     public MainFragment() {
         // Required empty public constructor
@@ -140,6 +142,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             case REQUES_SCANQR:
                 if (resultCode == getActivity().RESULT_OK) {
                     if (data != null) {
+                        clickked = true;
+                        mCallback.onClickFragment(clickked);
                         String url = data.getStringExtra("urlResult");
                         getFragmentManager().beginTransaction()
                                 .replace(R.id.contentContainer, WebFragment.newInstance(url))

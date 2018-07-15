@@ -17,7 +17,7 @@ import com.bumptech.glide.request.RequestOptions;
 import org.parceler.Parcels;
 
 import air.com.ramshero.QRscanUI.R;
-import air.com.ramshero.QRscanUI.fragment.IClickFragment;
+import air.com.ramshero.QRscanUI.view.IClickFragment;
 import air.com.ramshero.QRscanUI.fragment.MainFragment;
 import air.com.ramshero.QRscanUI.model.login.User;
 

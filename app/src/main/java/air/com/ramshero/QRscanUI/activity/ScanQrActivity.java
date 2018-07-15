@@ -23,6 +23,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import java.io.IOException;
 
 import air.com.ramshero.QRscanUI.R;
+import air.com.ramshero.QRscanUI.view.IClickFragment;
 
 public class ScanQrActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,6 +33,7 @@ public class ScanQrActivity extends AppCompatActivity implements View.OnClickLis
     private BarcodeDetector barcode;
     private CameraSource cameraSource;
     private SurfaceHolder holder;
+    private IClickFragment mCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +104,10 @@ public class ScanQrActivity extends AppCompatActivity implements View.OnClickLis
                     textPost.post(new Runnable() {
                         @Override
                         public void run() {
+
                             Intent intent = new Intent();
                             intent.putExtra("urlResult", barcodeArray.valueAt(0).displayValue);
+                            intent.putExtra("clicked", true);
                             setResult(RESULT_OK, intent);
                             cameraSource.stop();
                             finish();

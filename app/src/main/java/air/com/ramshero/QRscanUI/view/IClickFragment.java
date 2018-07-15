@@ -1,4 +1,4 @@
-package air.com.ramshero.QRscanUI.fragment;
+package air.com.ramshero.QRscanUI.view;
 
 public interface IClickFragment {
 

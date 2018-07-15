@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import air.com.ramshero.QRscanUI.R;
+import air.com.ramshero.QRscanUI.view.IClickFragment;
 
 
 /**
