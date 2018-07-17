@@ -1,11 +1,11 @@
 package air.com.ramshero.QRscanUI.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,37 +17,39 @@ import com.bumptech.glide.request.RequestOptions;
 import org.parceler.Parcels;
 
 import air.com.ramshero.QRscanUI.R;
-import air.com.ramshero.QRscanUI.view.IClickFragment;
-import air.com.ramshero.QRscanUI.fragment.MainFragment;
+import air.com.ramshero.QRscanUI.activity.LoginActivity;
 import air.com.ramshero.QRscanUI.model.login.User;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, IClickFragment{
+public class WebResultScanActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView imgBgUser;
     private TextView textUser;
     private ImageView btnLogout;
     private ImageView btnBack;
-    private ImageView btnBackToScan;
+    private WebView webView;
 
+    private String url;
     private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_web_result_scan);
 
         initData();
         initInstance();
+    }
 
-        if (savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.contentContainer, MainFragment.newInstance(user))
-                    .commit();
-        }
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(WebResultScanActivity.this, ScanQrActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void initData() {
+        url = getIntent().getStringExtra("urlResult");
         user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
     }
 
@@ -57,16 +59,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textUser = findViewById(R.id.textUser);
         btnLogout = findViewById(R.id.btnLogout);
         btnBack = findViewById(R.id.btnBack);
-        btnBackToScan = findViewById(R.id.btnBackToScan);
+        webView = findViewById(R.id.webView);
 
         btnLogout.setOnClickListener(this);
         btnBack.setOnClickListener(this);
-        btnBackToScan.setOnClickListener(this);
+
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl(url);
 
         displayImage();
+
     }
 
-    @SuppressLint("CheckResult")
     private void displayImage() {
 
         RequestOptions requestOptions = new RequestOptions();
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btnLogout:
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
@@ -93,27 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btnBack:
                 onBackPressed();
                 break;
-            case R.id.btnBackToScan:
-                Intent intent1 = new Intent(MainActivity.this, ScanQrActivity.class);
-                startActivity(intent1);
-                getSupportFragmentManager().popBackStack();
-        }
-    }
-
-    @Override
-    public void onClickFragment(int clicked) {
-        switch (clicked){
-            case 0:
-                btnBackToScan.setVisibility(View.GONE);
-                btnBack.setVisibility(View.GONE);
-                break;
-            case 1:
-                btnBack.setVisibility(View.VISIBLE);
-                btnBackToScan.setVisibility(View.GONE);
-                break;
-            case 2:
-                btnBack.setVisibility(View.GONE);
-                btnBackToScan.setVisibility(View.VISIBLE);
         }
     }
 }
