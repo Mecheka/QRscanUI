@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 
 import air.com.ramshero.QRscanUI.R;
 import air.com.ramshero.QRscanUI.activity.ScanQrActivity;
+import air.com.ramshero.QRscanUI.adapter.ButtomAdapter;
 import air.com.ramshero.QRscanUI.manager.Common;
 import air.com.ramshero.QRscanUI.manager.IQRCodeAPI;
 import air.com.ramshero.QRscanUI.model.login.User;
@@ -33,11 +36,11 @@ import retrofit2.Response;
 public class MainFragment extends Fragment implements View.OnClickListener {
 
     private ImageView btnScanQr;
-    private Button btnHome;
-    private Button btnQrList;
+    private ArrayList<MenuModel> menuList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private ButtomAdapter adapter;
 
     private User user;
-    private ArrayList<MenuModel> menuList = new ArrayList<>();
     private IQRCodeAPI mService;
 
     private IClickFragment mCallback;
@@ -60,7 +63,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         super.onAttach(context);
         try {
             mCallback = (IClickFragment) context;
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + "must implement IClickFragment");
         }
     }
@@ -77,7 +80,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        initData();
         initInstance(rootView);
         return rootView;
     }
@@ -96,9 +98,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 .enqueue(new Callback<MenuResultModel>() {
                     @Override
                     public void onResponse(Call<MenuResultModel> call, Response<MenuResultModel> response) {
+                        menuList.clear();
                         if (response.isSuccessful()) {
                             MenuResultModel menuResultModel = response.body();
-                            menuList.clear();
                             for (MenuModel menuModel : menuResultModel.getMenu()) {
                                 menuList.add(menuModel);
                             }
@@ -123,12 +125,54 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private void initInstance(View rootView) {
 
         btnScanQr = rootView.findViewById(R.id.btnScanQr);
-        btnHome = rootView.findViewById(R.id.btnHome);
-        btnQrList = rootView.findViewById(R.id.btnQrList);
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mService = Common.getAPI();
+
+        mService.getMenuResult(user.getUId())
+                .enqueue(new Callback<MenuResultModel>() {
+                    @Override
+                    public void onResponse(Call<MenuResultModel> call, Response<MenuResultModel> response) {
+                        menuList.clear();
+                        if (response.isSuccessful()) {
+                            MenuResultModel menuResultModel = response.body();
+                            for (MenuModel menuModel : menuResultModel.getMenu()) {
+                                menuList.add(menuModel);
+                            }
+                            adapter = new ButtomAdapter(menuList, getActivity());
+                            recyclerView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+
+                            adapter.setOnItemClick(new ButtomAdapter.IOnClick() {
+                                @Override
+                                public void onClick(int position) {
+                                    clickked = 1;
+                                    mCallback.onClickFragment(clickked);
+                                    getFragmentManager().beginTransaction()
+                                            .replace(R.id.contentContainer, WebFragment.newInstance(menuList.get(position).getUrl()))
+                                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
+                            });
+                        } else {
+                            try {
+                                Toast.makeText(getActivity(), response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MenuResultModel> call, Throwable t) {
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         btnScanQr.setOnClickListener(this);
-        btnHome.setOnClickListener(this);
-        btnQrList.setOnClickListener(this);
 
     }
 
@@ -140,35 +184,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 intent.putExtra("user", Parcels.wrap(user));
                 startActivity(intent);
                 break;
-            case R.id.btnHome:
-                clickked = 1;
-                mCallback.onClickFragment(clickked);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "home")))
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .addToBackStack(null)
-                        .commit();
-                break;
-            case R.id.btnQrList:
-                clickked = 1;
-                mCallback.onClickFragment(clickked);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.contentContainer, WebFragment.newInstance(getUrlMenu(menuList, "qr list")))
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .addToBackStack(null)
-                        .commit();
-                break;
         }
-    }
-
-    private String getUrlMenu(ArrayList<MenuModel> menuList, String validate) {
-        String url = null;
-        for (MenuModel menuModel : menuList) {
-            if (menuModel.getName().equals(validate)) {
-                url = menuModel.getUrl();
-            }
-        }
-        return url;
     }
 
 }

@@ -18,6 +18,7 @@ import org.parceler.Parcels;
 
 import air.com.ramshero.QRscanUI.R;
 import air.com.ramshero.QRscanUI.activity.LoginActivity;
+import air.com.ramshero.QRscanUI.manager.UserManager;
 import air.com.ramshero.QRscanUI.model.login.User;
 
 public class WebResultScanActivity extends AppCompatActivity implements View.OnClickListener {
@@ -50,7 +51,6 @@ public class WebResultScanActivity extends AppCompatActivity implements View.OnC
 
     private void initData() {
         url = getIntent().getStringExtra("urlResult");
-        user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
     }
 
     private void initInstance() {
@@ -74,16 +74,16 @@ public class WebResultScanActivity extends AppCompatActivity implements View.OnC
 
     private void displayImage() {
 
-        RequestOptions requestOptions = new RequestOptions();
-        requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
 
-        Glide.with(this)
-                .load(user.getCoverPhoto())
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .apply(requestOptions)
-                .into(imgBgUser);
+            Glide.with(this)
+                    .load(UserManager.getInstance().getCoverPhoto())
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .apply(requestOptions)
+                    .into(imgBgUser);
 
-        textUser.setText(user.getUName());
+            textUser.setText(UserManager.getInstance().getuName());
 
     }
 

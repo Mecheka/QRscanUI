@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,7 +27,6 @@ import java.io.IOException;
 
 import air.com.ramshero.QRscanUI.R;
 import air.com.ramshero.QRscanUI.model.login.User;
-import air.com.ramshero.QRscanUI.view.IClickFragment;
 
 public class ScanQrActivity extends AppCompatActivity implements View.OnClickListener {
 

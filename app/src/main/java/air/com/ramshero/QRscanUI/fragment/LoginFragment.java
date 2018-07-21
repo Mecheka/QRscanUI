@@ -1,8 +1,10 @@
 package air.com.ramshero.QRscanUI.fragment;
 
-
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,16 +21,22 @@ import air.com.ramshero.QRscanUI.activity.MainActivity;
 import air.com.ramshero.QRscanUI.R;
 import air.com.ramshero.QRscanUI.manager.Common;
 import air.com.ramshero.QRscanUI.manager.IQRCodeAPI;
+import air.com.ramshero.QRscanUI.manager.UserManager;
 import air.com.ramshero.QRscanUI.model.login.LoginResultModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
 public class LoginFragment extends Fragment implements View.OnClickListener{
+
+    private final String SPF_LOGIN = "loginperferences";
+    private final String USER = "user";
+    private final String PASS = "pass";
+    private String user;
+    private String pass;
 
     private EditText editUser;
     private EditText editPass;
@@ -39,6 +47,19 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences loginPreferences = getActivity().getSharedPreferences(SPF_LOGIN ,
+                Context.MODE_PRIVATE);
+        user = loginPreferences.getString(USER, null);
+        pass = loginPreferences.getString(PASS, null);
+
+        if (user != null && pass != null){
+            loginUser();
+        }
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,6 +104,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                             if (loginResult.getUser().getUId() == null){
                                 Toast.makeText(getActivity(), "ชื่อผู้ใช้หรือรหัสผิด", Toast.LENGTH_SHORT).show();
                             }else {
+                                UserManager.getInstance().setCoverPhoto(loginResult.getUser().getCoverPhoto());
+                                UserManager.getInstance().setuName(loginResult.getUser().getUName());
                                 Intent intent = new Intent(getActivity(), MainActivity.class);
                                 intent.putExtra("user", Parcels.wrap(loginResult.getUser()));
                                 startActivity(intent);
