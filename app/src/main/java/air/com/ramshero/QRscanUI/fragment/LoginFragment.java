@@ -56,6 +56,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         pass = loginPreferences.getString(PASS, null);
 
         if (user != null && pass != null){
+            //TODO Auto login
             loginUser();
         }
 
